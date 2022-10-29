@@ -1,0 +1,3 @@
+spring:
+  config:
+    import: E:\Projects Dev\Configuration\EasyServer\configuration_db.yaml
