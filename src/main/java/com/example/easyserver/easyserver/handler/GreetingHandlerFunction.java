@@ -1,10 +1,10 @@
-package com.example.easyserver.application.handler;
+package com.example.easyserver.easyserver.handler;
 
 import org.springframework.web.servlet.function.HandlerFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-public class GreetingHandlerFunction implements HandlerFunction<ServerResponse> {
+public final class GreetingHandlerFunction implements HandlerFunction<ServerResponse> {
 
     @Override
     public ServerResponse handle(ServerRequest request) throws Exception {

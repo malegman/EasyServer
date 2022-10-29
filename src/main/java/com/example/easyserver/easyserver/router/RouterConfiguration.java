@@ -1,6 +1,6 @@
-package com.example.easyserver.application.router;
+package com.example.easyserver.easyserver.router;
 
-import com.example.easyserver.application.handler.GreetingHandlerFunction;
+import com.example.easyserver.easyserver.handler.GreetingHandlerFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RequestPredicates;
