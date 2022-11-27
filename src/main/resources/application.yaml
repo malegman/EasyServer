@@ -1,3 +1,6 @@
 spring:
   config:
-    import: E:\Projects Dev\Configuration\EasyServer\configuration_db.yaml
+    import:
+      - E:\Projects Dev\Configuration\EasyServer\configuration.yaml
+      - E:\Projects Dev\Configuration\EasyServer\configuration_db.yaml
+
