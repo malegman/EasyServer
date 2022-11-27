@@ -1,27 +1,102 @@
 openapi: "3.0.0"
 info:
   version: "1.0"
-  title: Easy Server Warehouse
-  description: Сервер склада
+  title: Easy Server
+  description: Easy Server
 servers:
-  - url: http://localhost:8080/v1
+  - url: http://localhost:777
 tags:
-  - name: products
+  - name: greeting
+  - name: log in / out
+  - name: easy item
 paths:
-  /api/products:
+  /:
     get:
-      summary: Возвращает список товаров склада
-      operationId: listProducts
+      summary: Приветствие
+      operationId: greeting
       tags:
-        - products
+        - greeting
+      parameters:
+        - name: user
+          in: query
+          description: Имя пользователя
+          required: false
+          schema:
+            type: string
+            example: John
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Hello, John!
+  /api/register:
+    post:
+      summary: Регистрация в системе
+      operationId: register
+      tags:
+        - log in / out
+      requestBody:
+        content:
+          'easy-server/api/register':
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '204':
+          description: Пользователь создан успешно
+        '400':
+          description: Пользователь с данным именем уже существует или некорректное имя
+  /api/login:
+    post:
+      summary: Запрос на вход в систему
+      operationId: login
+      tags:
+        - log in / out
+      parameters:
+        - name: name
+          in: query
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+            example: John
+        - name: pwd
+          in: query
+          description: Пароль пользователя
+          required: true
+          schema:
+            type: string
+            example: johnpwd
+      responses:
+        '200':
+          description: Вход выполнен
+          headers:
+            X-AUTH:
+              description: Токен аутентификации пользователя
+              schema:
+                type: string
+                example:
+        '400':
+          description: Имя пользователя или пароль неверные
+  /api/easy_items:
+    get:
+      security:
+        - header: [ X-AUTH ]
+      summary: Возвращает список 'easy item' пользователя
+      operationId: getArrayEasyItem
+      tags:
+        - easy item
       parameters:
         - name: limit
           in: query
-          description: Лимит возвращаемых товаров
+          description: Лимит возвращаемых 'easy item'
           required: false
           schema:
             type: integer
             format: int32
+            example: 10
         - name: page
           in: query
           description: Номер страницы
@@ -29,40 +104,141 @@ paths:
           schema:
             type: integer
             format: int32
+            example: 1
       responses:
         '200':
-          description: Список товаров
+          description: Список 'easy item'
           content:
-            application/json:
+            easy_server.easy_item.get_array/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Product"
+                  $ref: '#/components/schemas/GetEasyItem'
+        '400':
+          description: Запрос содержит ошибки
+          content:
+            easy_server.violations/json:
+              schema:
+                $ref: '#/components/schemas/violations'
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав пользователя
+    post:
+      security:
+        - header: [ X-AUTH ]
+      summary: Создание 'easy item'
+      operationId: postEasyItem
+      tags:
+        - easy item
+      requestBody:
+        content:
+          easy_server.easy_item.post/json:
+            schema:
+              $ref: '#/components/schemas/PostEasyItem'
+      responses:
+        '201':
+          description: Создан 'easy item'
+          headers:
+            Location:
+              description: URI созданного easy item'
+              schema:
+                type: string
+                example: [server]/api/easy_items/15
+        '400':
+          description: Запрос содержит ошибки
+          content:
+            easy_server.violations/json:
+              schema:
+                $ref: '#/components/schemas/violations'
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав пользователя
+  /api/easy_items/{easyItemId}:
+    get:
+      security:
+        - header: [ X-AUTH ]
+      summary: Получение 'easy item' по идентификатору
+      operationId: getEasyItem
+      tags:
+        - easy item
+      parameters:
+        - name: easyItemId
+          in: path
+          description: Идентификатор 'easy item'
+          schema:
+            type: integer
+            format: int32
+            example: 15
+      responses:
+        '200':
+          description: Получен 'easy item'
+          content:
+            easy_server.easy_item.get_array/json:
+              schema:
+                $ref: '#/components/schemas/GetEasyItem'
+        '400':
+          description: Запрос содержит ошибки
+          content:
+            easy_server.violations/json:
+              schema:
+                $ref: '#/components/schemas/violations'
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав пользователя
+    delete:
+      security:
+        - header: [ X-AUTH ]
+      summary: Удаление 'easy item' по идентификатору
+      operationId: deleteEasyItem
+      tags:
+        - easy item
+      parameters:
+        - name: easyItemId
+          in: path
+          description: Идентификатор 'easy item'
+          schema:
+            type: integer
+            format: int32
+            example: 15
+      responses: 
+        '204':
+          description: Удален 'easy item'
+        '400':
+          description: Запрос содержит ошибки
+          content:
+            easy_server.violations/json:
+              schema:
+                $ref: '#/components/schemas/violations'
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав пользователя
 
 components:
   schemas:
-    Weight:
+    NewUser:
       properties:
-        amount:
-          description: Количество
-          type: number
-          format: double
-          example: 1.4
-        unit:
-          description: Единица измерения
+        name:
+          description: Имя пользователя
           type: string
-          example: кг
-    Product:
+          example: John
+    GetEasyItem:
       properties:
         id:
-          description: Идентификатор товара
+          description: Идентификатор 'easy item'
           type: integer
           format: int64
-          example: 1
+          example: 15
         name:
-          description: Наименование товара
+          description: Наименование 'easy item'
           type: string
-          example: Хлеб
-
-
-
+          example: Предмет
+    PostEasyItem:
+      properties:
+        name:
+          description: Наименование 'easy item'
+          type: string
+          example: Предмет
