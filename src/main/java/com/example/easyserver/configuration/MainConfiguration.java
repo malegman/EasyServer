@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -20,5 +22,10 @@ public class MainConfiguration {
                 .username(username)
                 .password(password)
                 .build();
+    }
+
+    @Bean
+    public PlatformTransactionManager platformTransactionManager(final DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 }
