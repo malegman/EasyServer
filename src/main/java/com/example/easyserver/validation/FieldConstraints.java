@@ -17,6 +17,8 @@ import java.util.function.Predicate;
 public record FieldConstraints<T, F>(Function<T, F> value, Predicate<F> rule, String property, String errorMessage)
         implements BiConsumer<Validation, T> {
 
+    public static final Predicate<String> PREDICATE_STRING_NOT_BLANK = value -> value != null && !value.isBlank();
+
     @Override
     public void accept(Validation validation, T t) {
         if (!this.rule.test(this.value.apply(t))) {
