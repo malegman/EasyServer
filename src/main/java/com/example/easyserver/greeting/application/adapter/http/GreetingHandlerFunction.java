@@ -1,4 +1,4 @@
-package com.example.easyserver.greeting.application.adapter;
+package com.example.easyserver.greeting.application.adapter.http;
 
 import com.example.easyserver.common.AbstractHandlerFunction;
 import org.springframework.transaction.TransactionStatus;
@@ -14,8 +14,9 @@ public final class GreetingHandlerFunction extends AbstractHandlerFunction {
 
     @Override
     protected ServerResponse handleInternal(ServerRequest request, TransactionStatus status) {
+        final var user = request.param("user").orElse(null);
         return ServerResponse
                 .ok()
-                .body("Hello from Easy Server!");
+                .body("Hello" + (user == null ? "" : ", " + user) + "!");
     }
 }
