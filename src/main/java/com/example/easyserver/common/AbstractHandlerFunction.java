@@ -1,5 +1,8 @@
 package com.example.easyserver.common;
 
+import com.example.easyserver.validation.Validation;
+import com.example.easyserver.validation.Violation;
+import com.example.easyserver.validation.ViolationsReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,15 +15,28 @@ import org.springframework.web.servlet.function.ServerResponse;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+/**
+ * Общий для всех запросов сервера обработчик запросов
+ */
 @Slf4j
 public abstract class AbstractHandlerFunction implements HandlerFunction<ServerResponse> {
 
     private final TransactionOperations transactionOperations;
 
-    public AbstractHandlerFunction(
+    protected AbstractHandlerFunction(
             final TransactionOperations transactionOperations) {
         this.transactionOperations = Objects.requireNonNull(transactionOperations);
+    }
+
+    protected ViolationsReport createViolationReport(final Validation validation) {
+        return new ViolationsReport(validation.getViolations().entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(Violation::message)
+                                .toList())));
     }
 
     @Override
