@@ -1,4 +1,4 @@
-package com.example.easyserver.auth.application.adapter.spring.jdbc;
+package com.example.easyserver.auth.application.adapter.output.spring.jdbc;
 
 import com.example.easyserver.auth.application.dto.RegisterUserDto;
 import com.example.easyserver.auth.application.port.output.RegisterUserOutputPort;

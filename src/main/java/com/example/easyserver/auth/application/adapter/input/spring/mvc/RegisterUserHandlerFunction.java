@@ -1,7 +1,9 @@
-package com.example.easyserver.auth.application.adapter.spring.http;
+package com.example.easyserver.auth.application.adapter.input.spring.mvc;
 
 import com.example.easyserver.auth.application.port.input.RegisterUserInputPort;
-import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.*;
+import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.Processor;
+import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.Success;
+import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.ValidationFailed;
 import com.example.easyserver.common.AbstractHandlerFunction;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionOperations;
@@ -22,11 +24,15 @@ public final class RegisterUserHandlerFunction extends AbstractHandlerFunction
         this.registerUserInputPort = Objects.requireNonNull(registerUserInputPort);
     }
 
+    private record Payload(String name, String password) {
+    }
+
     @Override
-    protected ServerResponse handleInternal(ServerRequest request, TransactionStatus status) {
+    protected ServerResponse handleInternal(ServerRequest request, TransactionStatus status) throws Exception {
+        final var payload = request.body(Payload.class);
         return this.registerUserInputPort.registerUser(builder ->
-                        builder.name(request.param("name").orElse(null))
-                                .password(request.param("password").orElse(null)))
+                        builder.name(payload.name())
+                                .password(payload.password()))
                 .onFailure(status::setRollbackOnly)
                 .process(this);
     }
