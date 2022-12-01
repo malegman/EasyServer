@@ -40,7 +40,7 @@ paths:
         - log in / out
       requestBody:
         content:
-          'easy-server/api/register':
+          'easy-server.api.register/json':
             schema:
               $ref: '#/components/schemas/NewUser'
       responses:
@@ -225,6 +225,10 @@ components:
           description: Имя пользователя
           type: string
           example: John
+        password:
+          description: Пароль пользователя
+          type: string
+          example: jghf73f
     GetEasyItem:
       properties:
         id:
