@@ -1,7 +1,8 @@
 package com.example.easyserver.auth.router;
 
-import com.example.easyserver.auth.application.adapter.spring.http.RegisterUserHandlerFunction;
-import com.example.easyserver.auth.application.adapter.spring.jdbc.SpringJdbcRegisterUserOutputPortAdapter;
+import com.example.easyserver.auth.application.adapter.input.spring.http.AuthMediaType;
+import com.example.easyserver.auth.application.adapter.input.spring.mvc.RegisterUserHandlerFunction;
+import com.example.easyserver.auth.application.adapter.output.spring.jdbc.SpringJdbcRegisterUserOutputPortAdapter;
 import com.example.easyserver.auth.application.usecase.RegisterUserUseCase;
 import com.example.easyserver.validation.SelfValidatingValidator;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,8 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 import javax.sql.DataSource;
 
+import static org.springframework.web.servlet.function.RequestPredicates.contentType;
+
 @Configuration
 public class AuthRouterConfiguration {
 
@@ -23,6 +26,7 @@ public class AuthRouterConfiguration {
             final DataSource dataSource) {
         return RouterFunctions.route()
                 .POST("/api/register",
+                        contentType(AuthMediaType.EASY_SERVER_AUTH_REGISTER_JSON),
                         new RegisterUserHandlerFunction(
                                 new TransactionTemplate(platformTransactionManager) {{
                                     this.setName("register_user");
