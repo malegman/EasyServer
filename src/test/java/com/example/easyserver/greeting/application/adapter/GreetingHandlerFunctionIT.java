@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -19,12 +21,12 @@ class GreetingHandlerFunctionIT {
     void greeting_ResponseIsValid_ReturnsResponseWithStatusOk() throws Exception {
 
         // given
-        final var requestBuilder = MockMvcRequestBuilders.get("/")
+        final var requestBuilder = get("/")
                 .param("user", "User");
 
         // when
         this.mockMvc.perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Hello, User!"));
+                .andExpect(status().isOk())
+                .andExpect(content().string("Hello, User!"));
     }
 }
