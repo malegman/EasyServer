@@ -40,14 +40,19 @@ paths:
         - log in / out
       requestBody:
         content:
-          'easy-server.api.register/json':
+          'application/json':
             schema:
-              $ref: '#/components/schemas/NewUser'
+              $ref: '#/components/schemas/newUser'
       responses:
         '204':
           description: Пользователь создан успешно
         '400':
           description: Пользователь с данным именем уже существует или некорректное имя
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/violations'
+
   /api/login:
     post:
       summary: Запрос на вход в систему
@@ -80,6 +85,10 @@ paths:
                 example:
         '400':
           description: Имя пользователя или пароль неверные
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/violations'
   /api/easy_items:
     get:
       security:
@@ -109,15 +118,15 @@ paths:
         '200':
           description: Список 'easy item'
           content:
-            easy_server.easy_item.get_array/json:
+            'application/json':
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetEasyItem'
+                  $ref: '#/components/schemas/getEasyItem'
         '400':
           description: Запрос содержит ошибки
           content:
-            easy_server.violations/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/violations'
         '401':
@@ -133,9 +142,9 @@ paths:
         - easy item
       requestBody:
         content:
-          easy_server.easy_item.post/json:
+          'application/json':
             schema:
-              $ref: '#/components/schemas/PostEasyItem'
+              $ref: '#/components/schemas/postEasyItem'
       responses:
         '201':
           description: Создан 'easy item'
@@ -148,7 +157,7 @@ paths:
         '400':
           description: Запрос содержит ошибки
           content:
-            easy_server.violations/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/violations'
         '401':
@@ -175,13 +184,13 @@ paths:
         '200':
           description: Получен 'easy item'
           content:
-            easy_server.easy_item.get_array/json:
+            'application/json':
               schema:
-                $ref: '#/components/schemas/GetEasyItem'
+                $ref: '#/components/schemas/getEasyItem'
         '400':
           description: Запрос содержит ошибки
           content:
-            easy_server.violations/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/violations'
         '401':
@@ -209,7 +218,7 @@ paths:
         '400':
           description: Запрос содержит ошибки
           content:
-            easy_server.violations/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/violations'
         '401':
@@ -219,7 +228,7 @@ paths:
 
 components:
   schemas:
-    NewUser:
+    newUser:
       properties:
         name:
           description: Имя пользователя
@@ -229,7 +238,7 @@ components:
           description: Пароль пользователя
           type: string
           example: jghf73f
-    GetEasyItem:
+    getEasyItem:
       properties:
         id:
           description: Идентификатор 'easy item'
@@ -240,9 +249,20 @@ components:
           description: Наименование 'easy item'
           type: string
           example: Предмет
-    PostEasyItem:
+    postEasyItem:
       properties:
         name:
           description: Наименование 'easy item'
           type: string
           example: Предмет
+    violations:
+      properties:
+        violations:
+          description: Список нарушений
+          type: object
+          properties:
+            field1:
+              type: array
+              example:
+                - violation 1
+                - violation 2
