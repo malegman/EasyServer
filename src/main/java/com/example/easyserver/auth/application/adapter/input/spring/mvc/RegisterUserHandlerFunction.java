@@ -1,15 +1,20 @@
 package com.example.easyserver.auth.application.adapter.input.spring.mvc;
 
 import com.example.easyserver.auth.application.port.input.RegisterUserInputPort;
-import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.Processor;
-import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.Success;
-import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.ValidationFailed;
+import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Payload;
+import com.example.easyserver.auth.application.port.input.RegisterUserInputPort.Result.*;
 import com.example.easyserver.common.AbstractHandlerFunction;
+import com.example.easyserver.validation.Validation;
+import com.example.easyserver.validation.Violation;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class RegisterUserHandlerFunction extends AbstractHandlerFunction
@@ -24,12 +29,12 @@ public final class RegisterUserHandlerFunction extends AbstractHandlerFunction
         this.registerUserInputPort = Objects.requireNonNull(registerUserInputPort);
     }
 
-    private record Payload(String name, String password) {
+    private record RequestPayload(String name, String password) {
     }
 
     @Override
     protected ServerResponse handleInternal(ServerRequest request, TransactionStatus status) throws Exception {
-        final var payload = request.body(Payload.class);
+        final var payload = request.body(RequestPayload.class);
         return this.registerUserInputPort.registerUser(builder ->
                         builder.name(payload.name())
                                 .password(payload.password()))
@@ -46,6 +51,26 @@ public final class RegisterUserHandlerFunction extends AbstractHandlerFunction
     public ServerResponse processValidationFailed(ValidationFailed result) {
         return ServerResponse
                 .badRequest()
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(this.createViolationReport(result.validation()));
+    }
+
+    @Override
+    public ServerResponse processExecutionFailed(ExecutionFailed result) {
+        if (result.exception() instanceof DataAccessException e) {
+            final var cause = e.getCause();
+            if (cause != null) {
+                if (cause.getMessage().contains("(c_login)=")) {
+                    return ServerResponse
+                            .badRequest()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.createViolationReport(new Validation(Map.of(
+                                    Payload.PROP_NAME,
+                                    List.of(new Violation(Payload.ERROR_NAME_EXISTS))
+                            ))));
+                }
+            }
+        }
+        throw new RuntimeException(result.exception());
     }
 }

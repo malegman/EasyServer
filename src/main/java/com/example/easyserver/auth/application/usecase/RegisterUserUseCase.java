@@ -26,8 +26,12 @@ public final class RegisterUserUseCase implements RegisterUserInputPort {
             return Result.validationFailed(validation);
         }
 
-        this.registerUserOutputPort.registerUser(
-                new RegisterUserDto(payload.name(), payload.password()));
-        return Result.success();
+        try {
+            this.registerUserOutputPort.registerUser(
+                    new RegisterUserDto(payload.name(), payload.password()));
+            return Result.success();
+        } catch (Exception e) {
+            return Result.executionFailed(e);
+        }
     }
 }

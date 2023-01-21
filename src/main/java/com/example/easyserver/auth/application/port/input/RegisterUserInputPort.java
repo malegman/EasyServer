@@ -30,14 +30,15 @@ public interface RegisterUserInputPort {
         public static final String PROP_NAME = "name";
         public static final String PROP_PASSWORD = "password";
 
-        public static final String ERROR_NAME = "login.name.error";
-        public static final String ERROR_PASSWORD = "login.name.password";
+        public static final String ERROR_NAME_IS_INVALID = "login.error.name.is_invalid";
+        public static final String ERROR_NAME_EXISTS = "login.error.name.exists";
+        public static final String ERROR_PASSWORD_IS_INVALID = "login.error.password.is_invalid";
 
         public static final List<FieldConstraints<Payload, ?>> VALIDATING_RULES = List.of(
                 new FieldConstraints<>(Payload::name, FieldConstraints.PREDICATE_STRING_NOT_BLANK,
-                        PROP_NAME, ERROR_NAME),
+                        PROP_NAME, ERROR_NAME_IS_INVALID),
                 new FieldConstraints<>(Payload::password, FieldConstraints.PREDICATE_STRING_NOT_BLANK,
-                        PROP_PASSWORD, ERROR_PASSWORD));
+                        PROP_PASSWORD, ERROR_PASSWORD_IS_INVALID));
 
         private Payload(Builder builder) {
             this(builder.name, builder.password);
@@ -94,6 +95,10 @@ public interface RegisterUserInputPort {
             return new ValidationFailed(validation);
         }
 
+        static ExecutionFailed executionFailed(final Exception exception) {
+            return new ExecutionFailed(exception);
+        }
+
         <T> T process(Processor<T> processor);
 
         enum Success implements Result {
@@ -118,11 +123,22 @@ public interface RegisterUserInputPort {
             }
         }
 
+        record ExecutionFailed(Exception exception) implements Result {
+
+
+            @Override
+            public <T> T process(Processor<T> processor) {
+                return processor.processExecutionFailed(this);
+            }
+        }
+
         interface Processor<T> {
 
             T processSuccess(Success result);
 
             T processValidationFailed(ValidationFailed result);
+
+            T processExecutionFailed(ExecutionFailed result);
         }
     }
 }
