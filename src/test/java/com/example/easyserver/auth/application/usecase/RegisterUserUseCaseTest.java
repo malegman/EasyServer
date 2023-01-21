@@ -68,9 +68,9 @@ class RegisterUserUseCaseTest {
         // then
         assertEquals(Result.validationFailed(new Validation(Map.of(
                 Payload.PROP_NAME,
-                List.of(new Violation(Payload.ERROR_NAME)),
+                List.of(new Violation(Payload.ERROR_NAME_IS_INVALID)),
                 Payload.PROP_PASSWORD,
-                List.of(new Violation(Payload.ERROR_PASSWORD))
+                List.of(new Violation(Payload.ERROR_PASSWORD_IS_INVALID))
         ))), result);
         verifyNoInteractions(this.registerUserOutputPort);
     }
